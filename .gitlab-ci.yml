@@ -1,0 +1,39 @@
+stages:
+  - build
+  - test
+  - deploy
+
+bbuild:
+  stage: build
+  script:
+    - echo "Compilation du projet..."
+    - mvn clean package
+  artifacts:
+    paths:
+    - target/*.jar  # Stocke le .jar pour le transfert
+  tags: 
+    - EC2-ECF2025 # Doit correspondre au tag défini sur le runner
+
+test:
+  stage: test
+  script:
+    - mvn test
+  tags: 
+    - EC2-ECF2025 # Doit correspondre au tag défini sur le runner
+
+deploy:
+  stage: deploy
+  script:
+    - echo "Déploiement sur EC2..."
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/key-gitlab-ec2
+    - chmod 600 ~/.ssh/key-gitlab-ec2
+    - scp -v -i ~/.ssh/key-gitlab-ec2 target/*.jar ec2-user@35.181.114.26:/home/ec2-user
+    - ssh -v -i ~/.ssh/key-gitlab-ec2 ec2-user@35.181.114.26 "nohup java -jar /home/ec2-user/*.jar &"
+  tags: 
+    - EC2-ECF2025 # Doit correspondre au tag défini sur le runner
+  
+  
+  only:
+    - main  # Déploiement uniquement depuis la branche principale
+
