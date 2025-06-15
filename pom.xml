@@ -50,6 +50,7 @@
 		<dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-webflux</artifactId>
+		<version>3.2.5</version>
         </dependency>
         
 		<dependency>
@@ -72,11 +73,10 @@
         <plugin>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-maven-plugin</artifactId>
-			<version>3.4.5</version> <!-- Vérifie que cette version est correcte -->
-			<configuration>
-               <mainClass>react.ReactiveController.java</mainClass> <!-- Remplacez par la classe principale souhaitée -->
-            </configuration>
-        </plugin>
+		 <configuration>
+        <mainClass>react.ReactiveController</mainClass>
+         </configuration>	
+	    </plugin>
     </plugins>
   </build>
 
