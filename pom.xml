@@ -8,11 +8,11 @@
 		<version>3.4.5</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.example</groupId>
-	<artifactId>ecf2025</artifactId>
+	<groupId>react</groupId>
+	<artifactId>cicd-do</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>ecf2025</name>
-	<description>ECF2025 for Spring Boot</description>
+	<name>cicd-do</name>
+	<description>CICD-DO for Spring Boot</description>
 	<url/>
 	<licenses>
 		<license/>
@@ -73,9 +73,9 @@
         <plugin>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-maven-plugin</artifactId>
-		 <configuration>
-        <mainClass>react.ReactiveController</mainClass>
-         </configuration>	
+		<configuration>
+         <mainClass>com.HelloWorldApplication.java</mainClass>
+        </configuration>	
 	    </plugin>
     </plugins>
   </build>
