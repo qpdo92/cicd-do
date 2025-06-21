@@ -20,11 +20,11 @@ class HelloWorldController {
 
     }
 
-    app.post('/github-webhook',(req,res)=>
+    app.post("/github-webhook",(req,res)=>
 
     {
   // traitement du webhook
-  res.status(200).send('OK');
+  res.status(200).send("OK");
 });
 
 }
