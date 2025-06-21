@@ -19,4 +19,12 @@ class HelloWorldController {
         return "Hello World! du PC";
 
     }
+
+    app.post('/github-webhook',(req,res)=>
+
+    {
+  // traitement du webhook
+  res.status(200).send('OK');
+});
+
 }
