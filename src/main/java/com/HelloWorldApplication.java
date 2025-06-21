@@ -4,6 +4,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @SpringBootApplication
 public class HelloWorldApplication {
@@ -21,6 +24,12 @@ class HelloWorldController {
     }
 }
 
-app.post("/github-webhook",(req,res)=>{
-// traitement du webhook
-res.status(200).send("OK");});
+@RestController
+class WebhookController {
+    @PostMapping("/github-webhook")
+    public ResponseEntity<String> handleWebhook(@RequestBody(required = false) String payload) {
+        // Traitement du webhook
+        System.out.println("Webhook reçu !");
+        return ResponseEntity.ok("OK");
+    }
+}
