@@ -1,0 +1,56 @@
+pipeline {
+    agent any
+
+    environment {
+        MAVEN_HOME = '/usr/share/maven'
+    }
+
+    triggers {
+        githubPush() // Déclenche la pipeline à chaque push GitHub
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git credentialsId: 'github-credentials-id', url: 'https://github.com/ton-utilisateur/ton-repo.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'mvn clean compile'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+
+        stage('Package') {
+            steps {
+                sh 'mvn package'
+            }
+        }
+
+        stage('Deploy') {
+            when {
+                branch 'main'
+            }
+            steps {
+                echo 'Déploiement en cours...'
+                // Ajoute ici ton script de déploiement
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Build réussi !'
+        }
+        failure {
+            echo 'Échec du build.'
+        }
+    }
+}
