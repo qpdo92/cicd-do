@@ -12,7 +12,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git credentialsId: 'github-credentials-id', url: 'https://github.com/ton-utilisateur/ton-repo.git'
+                git credentialsId: 'github-credentials-id', url: 'https://github.com/qpdo92/cicd-do.git'
             }
         }
 
