@@ -74,7 +74,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-maven-plugin</artifactId>
 		<configuration>
-         <mainClass>com.HelloWorldApplication.java</mainClass>
+         <mainClass>com.HelloWorldApplication</mainClass>
         </configuration>	
 	    </plugin>
     </plugins>
@@ -97,6 +97,7 @@
         <url>http://localhost:8081/repository/maven-public/</url>
     </repository>
 </repositories>
+
 
 
 </project>
