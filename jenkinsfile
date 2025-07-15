@@ -29,9 +29,7 @@ pipeline {
         }
 
         stage('Deploy') {
-            when {
-                branch 'main'
-            }
+            
             steps {
                 echo 'Déploiement vers EC2 en cours...'
                 sshagent(['ec2-deploy-key']) {
