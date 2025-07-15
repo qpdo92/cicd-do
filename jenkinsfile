@@ -41,6 +41,7 @@ pipeline {
             sh 'ssh -v -o StrictHostKeyChecking=no ec2-user@ec2-35-181-114-26.eu-west-3.compute.amazonaws.com "sudo systemctl restart springboot-app"'
         }
     }
+
 }
 
 
