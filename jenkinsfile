@@ -16,9 +16,6 @@ pipeline {
             }
         }
 
-                         
-
-
         stage('Test') {
             steps {
                 sh 'mvn test'
@@ -32,19 +29,36 @@ pipeline {
         }
 
         stage('Deploy') {
-    when {
-        branch 'main'
-    }
+            when {
+                branch 'main'
+            }
             steps {
-                 echo 'Déploiement vers EC2 en cours...'
-             sshagent(['ec2-deploy-key']) {
-            sh 'scp -v -o StrictHostKeyChecking=no target/cicd-do-0.0.1-SNAPSHOT.jar ec2-user@ec2-35-181-114-26.eu-west-3.compute.amazonaws.com:/home/ec2-user/'
-            sh 'ssh -v -o StrictHostKeyChecking=no ec2-user@ec2-35-181-114-26.eu-west-3.compute.amazonaws.com "sudo systemctl restart springboot-app"'
+                echo '🚀 Déploiement vers EC2...'
+                sshagent(['ec2-deploy-key']) {
+                    // Transfert du fichier .jar
+                    sh 'scp -v -o StrictHostKeyChecking=no target/cicd-do-0.0.1-SNAPSHOT.jar ec2-user@ec2-35-181-114-26.eu-west-3.compute.amazonaws.com:/home/ec2-user/'
+
+                    // Redémarrage du service
+                    sh 'ssh -v -o StrictHostKeyChecking=no ec2-user@ec2-35-181-114-26.eu-west-3.compute.amazonaws.com "sudo systemctl restart springboot-app"'
+                }
+            }
+        }
+
+        stage('Test SSH EC2') {
+            steps {
+                sshagent(['ec2-deploy-key']) {
+                    sh 'ssh -o StrictHostKeyChecking=no ec2-user@ec2-35-181-114-26.eu-west-3.compute.amazonaws.com "echo ✅ Connexion SSH OK"'
+                }
+            }
         }
     }
-}
 
-
-    
+    post {
+        success {
+            echo '✅ Build et déploiement réussis ! 🎉'
+        }
+        failure {
+            echo '❌ Échec du pipeline.'
+        }
     }
 }
