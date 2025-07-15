@@ -6,11 +6,10 @@ pipeline {
     }
 
     triggers {
-        githubPush() // Déclenche la pipeline à chaque push GitHub
+        githubPush()
     }
 
     stages {
-        
         stage('Build') {
             steps {
                 sh 'mvn clean compile'
@@ -29,36 +28,34 @@ pipeline {
             }
         }
 
-        stage('Test SSH') {
-            steps {
-        sshagent(['ec2-deploy-key']) {
-            sh 'ssh -o StrictHostKeyChecking=no ec2-user@ec2-35-181-114-26.eu-west-3.compute.amazonaws.com "echo Connexion OK"'
-        }
-    }
-}
-
         stage('Deploy') {
-    when {
-        branch 'main'
-    }
+            when {
+                branch 'main'
+            }
             steps {
-        echo 'Déploiement vers EC2 en cours...'
-        sshagent(['ec2-deploy-key']) {
-            sh 'scp -o StrictHostKeyChecking=no target/cicd-do-0.0.1-SNAPSHOT.jar ec2-user@ec2-35-181-114-26.eu-west-3.compute.amazonaws.com:/home/ec2-user/'
-            sh 'ssh -o StrictHostKeyChecking=no ec2-user@ec2-35-181-114-26.eu-west-3.compute.amazonaws.com "sudo systemctl restart springboot-app"'
-}
+                echo 'Déploiement vers EC2 en cours...'
+                sshagent(['8e07cee9-52d4-41ec-a1cb-eebc7a0dd38c']) {
+                    sh 'scp -o StrictHostKeyChecking=no target/cicd-do-0.0.1-SNAPSHOT.jar ec2-user@ec2-35-181-114-26.eu-west-3.compute.amazonaws.com:/home/ec2-user/'
+                    sh 'ssh -o StrictHostKeyChecking=no ec2-user@ec2-35-181-114-26.eu-west-3.compute.amazonaws.com "sudo systemctl restart springboot-app"'
+                }
+            }
+        }
 
-    }
-}
-  
+        stage('Test SSH EC2') {
+            steps {
+                sshagent(['8e07cee9-52d4-41ec-a1cb-eebc7a0dd38c']) {
+                    sh 'ssh -o StrictHostKeyChecking=no ec2-user@ec2-35-181-114-26.eu-west-3.compute.amazonaws.com "echo Connexion OK"'
+                }
+            }
+        }
     }
 
     post {
         success {
-            echo 'Build réussi !'
+            echo 'Build et déploiement réussis ! 🎉'
         }
         failure {
-            echo 'Échec du build.'
+            echo 'Échec du pipeline.'
         }
     }
 }
