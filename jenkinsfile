@@ -42,25 +42,6 @@ pipeline {
         }
     }
 
-
-}
-
-
-                  
-
-                    // Redémarrage du service
-                    sh 'ssh -v -o StrictHostKeyChecking=no ec2-user@ec2-35-181-114-26.eu-west-3.compute.amazonaws.com "sudo systemctl restart springboot-app"'
-                }
-            }
-        }
-
-        stage('Test SSH EC2') {
-            steps {
-                sshagent(['ec2-deploy-key']) {
-                    sh 'ssh -o StrictHostKeyChecking=no ec2-user@ec2-35-181-114-26.eu-west-3.compute.amazonaws.com "echo ✅ Connexion SSH OK"'
-                }
-            }
-        }
     }
 
     post {
