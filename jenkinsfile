@@ -20,9 +20,13 @@ pipeline {
             steps {
                 sshagent(['ec2-deploy-key']) {
                     sh 'ssh -o StrictHostKeyChecking=no ec2-user@ec2-35-181-114-26.eu-west-3.compute.amazonaws.com "echo Connexion OK"'
+                    sh 'ssh -o StrictHostKeyChecking=no ec2-user@ec2-35-181-114-26.eu-west-3.compute.amazonaws.com "sudo journalctl -u springboot-app --no-pager -n 50"'
                 }
             }
         }
+
+                    
+
 
         stage('Test') {
             steps {
