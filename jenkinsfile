@@ -31,11 +31,14 @@ pipeline {
         stage('Deploy') {
             when {
                 branch 'main'
+                echo "Branche actuelle : ${env.GIT_BRANCH}"
+
             }
             steps {
                 echo '🚀 Déploiement vers EC2...'
                 sshagent(['ec2-deploy-key']) {
                     // Transfert du fichier .jar
+                    sh 'echo "✅ Bloc sshagent actif, début du transfert..."'
                     sh 'scp -v -o StrictHostKeyChecking=no target/cicd-do-0.0.1-SNAPSHOT.jar ec2-user@ec2-35-181-114-26.eu-west-3.compute.amazonaws.com:/home/ec2-user/'
 
                     // Redémarrage du service
