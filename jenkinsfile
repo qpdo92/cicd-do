@@ -32,6 +32,7 @@ pipeline {
                         nohup java -jar ${REMOTE_PATH} --server.port=8081 > ${APP_NAME}.log 2>&1 &
                         EOF'
                 }
+     
             }
         }
     }
