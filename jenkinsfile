@@ -3,47 +3,45 @@ pipeline {
 
     environment {
         EC2_USER = 'ec2-user'
-        EC2_IP = 'ec2-35-181-114-26.eu-west-3.compute.amazonaws.com'
-        KEY_PATH = 'C:/Phuc/STUDI/Github/cicd-do/KEY-EC2-DO.pem'
+        EC2_IP = 'ec2-35-181-114-26.eu-west-3.compute.amazonaws.com' 
         APP_NAME = 'cicd-do-0.0.1-SNAPSHOT.jar'
-        SOURCE_PATH = 'C:/Phuc/STUDI/Github/cicd-do/DO'
+        REMOTE_PATH = "/home/ec2-user/${APP_NAME}"
     }
 
     stages {
         stage('Build') {
             steps {
-                sh "cd ${SOURCE_PATH} && mvn clean package -DskipTests"
+                sh 'mvn clean package -DskipTests'
             }
         }
 
         stage('Test') {
             steps {
-                sh "cd ${SOURCE_PATH} && mvn test"
+                sh 'mvn test'
             }
         }
 
-        stage('Verify JAR') {
+        stage('Deploy to EC2') {
             steps {
-                sh """
-                if not exist ${SOURCE_PATH}\\target\\${APP_NAME} (
-                    echo JAR non généré
-                    exit /b 1
-                )
-                """
+                withCredentials([sshUserPrivateKey(credentialsId: 'ec2-deploy-key', keyFileVariable: 'KEY')]) {
+                    sh 'scp -i $KEY target/${APP_NAME} ${EC2_USER}@${EC2_IP}:${REMOTE_PATH}'
+                    sh '''
+                        ssh -i $KEY ${EC2_USER}@${EC2_IP} << EOF
+                        pkill -f ${APP_NAME} || echo "Pas d'application en cours"
+                        nohup java -jar ${REMOTE_PATH} --server.port=8080 > ${APP_NAME}.log 2>&1 &
+                        EOF
+                    '''
+                }
             }
         }
+    }
 
-        stage('Transfer to EC2') {
-            steps {
-                sh "scp -i ${KEY_PATH} ${SOURCE_PATH}\\target\\${APP_NAME} ${EC2_USER}@${EC2_IP}:/home/ec2-user/${APP_NAME}"
-            }
+    post {
+        success {
+            echo '✅ Déploiement réussi sur EC2 !'
         }
-
-        stage('Deploy on EC2') {
-            steps {
-                sh "ssh -i ${KEY_PATH} ${EC2_USER}@${EC2_IP} \"pgrep -f '${APP_NAME}' && pkill -f '${APP_NAME}' || echo 'Aucune application en cours'\""
-                sh "ssh -i ${KEY_PATH} ${EC2_USER}@${EC2_IP} \"nohup java -jar /home/ec2-user/${APP_NAME} --server.address=0.0.0.0 --server.port=8081 > /home/ec2-user/${APP_NAME}.log 2>&1 &\""
-            }
+        failure {
+            echo '❌ Échec du déploiement.'
         }
     }
 }
