@@ -2,54 +2,48 @@ pipeline {
     agent any
 
     environment {
-        MAVEN_HOME = '/usr/share/maven'
-    }
-
-    triggers {
-        githubPush()
+        EC2_USER = 'ec2-user'
+        EC2_IP = 'ec2-35-181-114-26.eu-west-3.compute.amazonaws.com'
+        KEY_PATH = 'C:/Phuc/STUDI/Github/cicd-do/DO/KEY-EC2-DO.pem'
+        APP_NAME = 'cicd-do-0.0.1-SNAPSHOT.jar'
+        SOURCE_PATH = 'C:/Phuc/STUDI/Github/cicd-do/DO'
     }
 
     stages {
         stage('Build') {
             steps {
-                sh 'mvn clean compile'
+                bat "cd ${SOURCE_PATH} && mvn clean package -DskipTests"
             }
         }
 
         stage('Test') {
             steps {
-                sh 'mvn test'
+                bat "cd ${SOURCE_PATH} && mvn test"
             }
         }
 
-        stage('Package') {
+        stage('Verify JAR') {
             steps {
-                sh 'mvn package'
+                bat """
+                if not exist ${SOURCE_PATH}\\target\\${APP_NAME} (
+                    echo JAR non généré
+                    exit /b 1
+                )
+                """
             }
         }
 
-        stage('Deploy') {
-    when {
-        branch 'main'
-    }
-    steps {
-        echo '🚀 Déploiement vers EC2...'
-        sshagent(['ec2-deploy-key']) {
-            sh 'echo "✅ Bloc sshagent actif, début du transfert..."'
-            sh 'curl -O http://localhost:8080/job/cicd-do/lastSuccessfulBuild/artifact/target/cicd-do-0.0.1-SNAPSHOT.jar'
-            sh 'scp -v -o StrictHostKeyChecking=no cicd-do-0.0.1-SNAPSHOT.jar ec2-user@ec2-35-181-114-26.eu-west-3.compute.amazonaws.com:/home/ec2-user/'
-            sh 'ssh -v -o StrictHostKeyChecking=no ec2-user@ec2-35-181-114-26.eu-west-3.compute.amazonaws.com "sudo systemctl restart springboot-app"'
+        stage('Transfer to EC2') {
+            steps {
+                bat "scp -i ${KEY_PATH} ${SOURCE_PATH}\\target\\${APP_NAME} ${EC2_USER}@${EC2_IP}:/home/ec2-user/${APP_NAME}"
+            }
         }
-    }
 
-    }
-
-    post {
-        success {
-            echo '✅ Build et déploiement réussis ! 🎉'
-        }
-        failure {
-            echo '❌ Échec du pipeline.'
+        stage('Deploy on EC2') {
+            steps {
+                bat "ssh -i ${KEY_PATH} ${EC2_USER}@${EC2_IP} \"pgrep -f '${APP_NAME}' && pkill -f '${APP_NAME}' || echo 'Aucune application en cours'\""
+                bat "ssh -i ${KEY_PATH} ${EC2_USER}@${EC2_IP} \"nohup java -jar /home/ec2-user/${APP_NAME} --server.address=0.0.0.0 --server.port=8081 > /home/ec2-user/${APP_NAME}.log 2>&1 &\""
+            }
         }
     }
 }
