@@ -8,6 +8,16 @@ pipeline {
         REMOTE_PATH = "/home/ec2-user/${APP_NAME}"
     }
 
+    checkout([
+    $class: 'GitSCM',
+    branches: [[name: '*/main']],
+    userRemoteConfigs: [[
+        url: 'https://github.com/qpdo92/cicd-do.git',
+        credentialsId: 'token-github-jenkins'
+    ]]
+])
+
+
     stages {
         stage('Build') {
             steps {
