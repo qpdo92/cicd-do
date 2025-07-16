@@ -39,6 +39,7 @@ pipeline {
 
 
 
+
     post {
         success {
             echo '✅ Déploiement réussi sur EC2 !'
