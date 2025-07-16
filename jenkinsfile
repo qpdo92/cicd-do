@@ -12,19 +12,19 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                bat "cd ${SOURCE_PATH} && mvn clean package -DskipTests"
+                sh "cd ${SOURCE_PATH} && mvn clean package -DskipTests"
             }
         }
 
         stage('Test') {
             steps {
-                bat "cd ${SOURCE_PATH} && mvn test"
+                sh "cd ${SOURCE_PATH} && mvn test"
             }
         }
 
         stage('Verify JAR') {
             steps {
-                bat """
+                sh """
                 if not exist ${SOURCE_PATH}\\target\\${APP_NAME} (
                     echo JAR non généré
                     exit /b 1
@@ -35,14 +35,14 @@ pipeline {
 
         stage('Transfer to EC2') {
             steps {
-                bat "scp -i ${KEY_PATH} ${SOURCE_PATH}\\target\\${APP_NAME} ${EC2_USER}@${EC2_IP}:/home/ec2-user/${APP_NAME}"
+                sh "scp -i ${KEY_PATH} ${SOURCE_PATH}\\target\\${APP_NAME} ${EC2_USER}@${EC2_IP}:/home/ec2-user/${APP_NAME}"
             }
         }
 
         stage('Deploy on EC2') {
             steps {
-                bat "ssh -i ${KEY_PATH} ${EC2_USER}@${EC2_IP} \"pgrep -f '${APP_NAME}' && pkill -f '${APP_NAME}' || echo 'Aucune application en cours'\""
-                bat "ssh -i ${KEY_PATH} ${EC2_USER}@${EC2_IP} \"nohup java -jar /home/ec2-user/${APP_NAME} --server.address=0.0.0.0 --server.port=8081 > /home/ec2-user/${APP_NAME}.log 2>&1 &\""
+                sh "ssh -i ${KEY_PATH} ${EC2_USER}@${EC2_IP} \"pgrep -f '${APP_NAME}' && pkill -f '${APP_NAME}' || echo 'Aucune application en cours'\""
+                sh "ssh -i ${KEY_PATH} ${EC2_USER}@${EC2_IP} \"nohup java -jar /home/ec2-user/${APP_NAME} --server.address=0.0.0.0 --server.port=8081 > /home/ec2-user/${APP_NAME}.log 2>&1 &\""
             }
         }
     }
