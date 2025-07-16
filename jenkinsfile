@@ -4,7 +4,7 @@ pipeline {
     environment {
         EC2_USER = 'ec2-user'
         EC2_IP = 'ec2-35-181-114-26.eu-west-3.compute.amazonaws.com'
-        KEY_PATH = 'C:/Phuc/STUDI/Github/cicd-do/DO/KEY-EC2-DO.pem'
+        KEY_PATH = 'C:/Phuc/STUDI/Github/cicd-do/KEY-EC2-DO.pem'
         APP_NAME = 'cicd-do-0.0.1-SNAPSHOT.jar'
         SOURCE_PATH = 'C:/Phuc/STUDI/Github/cicd-do/DO'
     }
