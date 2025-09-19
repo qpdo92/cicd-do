@@ -31,7 +31,7 @@ pipeline {
                     sh 'scp -i $KEY target/${APP_NAME} ${EC2_USER}@${EC2_IP}:${REMOTE_PATH}'
                     sh 'ssh -i $KEY ${EC2_USER}@${EC2_IP} << EOF
                         pkill -f ${APP_NAME} || echo "Pas application en cours"
-                        nohup java -jar ${REMOTE_PATH} --server.port=8081 > ${APP_NAME}.log 2>&1 &
+                        nohup java -jar ${REMOTE_PATH}${APP_NAME} > ${APP_NAME}.log 2>&1 &
                         EOF'
                 }
      
